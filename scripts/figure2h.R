@@ -1,6 +1,20 @@
 # figure 2h
-
 library(data.table)
+library(purrr)
+library(furrr)
+library(dplyr)
+library(plyr)
+
+
+flattenCorrMatrix <- function(cormat) {
+  ut <- upper.tri(cormat)
+  data.frame(
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  =(cormat)[ut]
+  )
+}
+
 ## rna expression
 sample.anno<-fread("~/Desktop/NGS_postdoc/data/DNA.data/20190826.updated.sample.metadata.tsv")
 rna<-fread("~/Desktop/NGS_postdoc/data/RNA.expr.mat/20190519.tech.rep.collapsed.RNA.matrix.tpm.tsv") %>% merge(sample.anno[qc.rna==T &!sex=="GG",.(cellid,stage,embryo_id)],by="cellid")
@@ -10,17 +24,10 @@ rna[,expr:=log2(tpm+1)]
 
 kept.gene1<-rna[,.(mean(expr)),.(stage,symbol)] %>% .[V1>1,unique(symbol)] #18525
 
-#  cv >0.5
-#kept.gene3<-rna[,sd(expr)/mean(expr),symbol] %>% .[V1>0.5,unique(symbol)] 
-#rna[symbol %in% kept.gene1 & symbol %in% kept.gene3,length(unique(symbol))] #  10704
-#correlation.test<-rna[symbol %in% kept.gene1 & symbol %in% kept.gene3] 
-
 correlation.test<-rna [symbol %in% kept.gene1 ]
 
 correlation.test<-dcast(correlation.test,symbol~cellid,value.var = "expr") %>% as.data.frame() %>% tibble::column_to_rownames("symbol")
 correlation.test<-cor(correlation.test,method = "spearman")
-#row.anno<-sample.anno[cellid %in% rownames(correlation.test) &qc.rna==T,.(cellid,DC.order,stage)]%>% setorder(DC.order) %>% as.data.frame() %>% tibble::column_to_rownames("cellid")
-#pheatmap::pheatmap(correlation.test[rownames(row.anno),rownames(row.anno)],cluster_rows = F,cluster_cols = F,annotation_row = row.anno)
 
 to.plot<-flattenCorrMatrix(correlation.test)%>% as.data.table %>% setnames(c("cell1","cell2","cor")) 
 to.plot[,length(unique(cell2))]
@@ -30,12 +37,8 @@ to.plot<-merge(to.plot,sample.anno[,.(cell2=cellid,stage2=stage,embryo_id2=embry
 unique(to.plot$embryo_id1)
 to.plot[embryo_id1==embryo_id2 & embryo_id2=="X4cell2"]
 
-#to.plot[stage1 == "ICM", stage1:= "blastocyst"]
-#to.plot[stage1 == "TE", stage1:= "blastocyst"]
-#to.plot[stage2 == "ICM", stage2:= "blastocyst"]
-#to.plot[stage2 == "TE", stage2:= "blastocyst"]
 unique(to.plot$stage1)
-to.plot$stage1<-factor(to.plot$stage1,levels=c("zygote","2cell","4cell","L4cell","8cell","16cell", "ICM","TE")) #"ICM","TE"
+to.plot$stage1<-factor(to.plot$stage1,levels=c("zygote","2cell","4cell","L4cell","8cell","16cell", "ICM","TE")) 
 
 to.plot[stage1==stage2, group:=ifelse(embryo_id1==embryo_id2,"intraembryo","interembryo")]
 to.plot<-to.plot[stage1==stage2]
@@ -119,10 +122,6 @@ sample.anno[cellid%in% to.plot$cell2,.N,sex]
 unique(to.plot$embryo_id1)
 to.plot[embryo_id1==embryo_id2 & embryo_id2=="X4cell2"]
 
-#to.plot[stage1 == "ICM", stage1:= "blastocyst"]
-#to.plot[stage1 == "TE", stage1:= "blastocyst"]
-#to.plot[stage2 == "ICM", stage2:= "blastocyst"]
-#to.plot[stage2 == "TE", stage2:= "blastocyst"]
 unique(to.plot$stage1)
 to.plot$stage1<-factor(to.plot$stage1,levels=c("zygote","2cell","4cell","L4cell","8cell","16cell", "ICM","TE" )) #"blastocyst")) #
 
@@ -193,7 +192,7 @@ correlation.test<-read.table("~/Desktop/NGS_postdoc/data/clustering/20190716.acc
 
 to.plot<-flattenCorrMatrix(correlation.test)%>% as.data.table %>% setnames(c("sample1","sample2","cor")) 
 to.plot[,length(unique(sample1))]
-#### 去除qc.acc.extra failed细胞
+#### rm qc.acc.extra failed cells
 
 sample.anno<-fread("~/Desktop/NGS_postdoc/data/DNA.data/20190826.updated.sample.metadata.tsv")
 sample.anno[qc.rna==T &qc.dna==T &qc.acc.extra==T,.N,stage]
@@ -270,11 +269,3 @@ to.plot<-rbind(to.plot[,.(Type=group,Stage=stage1,cor,Data="Acc")],
 )
 
 
-flattenCorrMatrix <- function(cormat) {
-  ut <- upper.tri(cormat)
-  data.frame(
-    row = rownames(cormat)[row(cormat)[ut]],
-    column = rownames(cormat)[col(cormat)[ut]],
-    cor  =(cormat)[ut]
-  )
-}
