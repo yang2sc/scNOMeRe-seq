@@ -1,10 +1,13 @@
+library(data.table)
+library(purrr)
+library(furrr)
+library(dplyr)
+library(plyr)
 ### after run 20190714.sc.tf.activity.R
 ### link motif name to TF names
 ######################################################################################################
 ## tf activity in single cells
-
-
-Figure 4f
+#figure 4f
 
 zga.tf<-fread("~/Desktop/NGS_postdoc/data/zga/degs.cor/homer.tf/20190803.kept.homer.motif.tsv")  %>% setnames(c("TF","tf","Consensus"))
 
@@ -276,7 +279,7 @@ cor_samples[symbol=="RARG"]
 
 setorder(cor_samples,-padj_fdr)
 
-figure 4h
+#figure 4h
 #### correlation plot
 pdf("~/Desktop/NGS_postdoc/data/zga/degs.cor/20190820.sc.TF.expr.activity.pearson.cor.pdf",width=8,height=5)
 xlen<-cor_samples[!is.na(r),max(r)-min(r)]
