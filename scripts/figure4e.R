@@ -1,6 +1,13 @@
+# figure 4e
 # tf enrichment
+library(data.table)
+library(purrr)
+library(furrr)
+library(dplyr)
+library(plyr)
 
-#homer size given
+
+#run homer in server, size given; plot in local
 files<-list.files("~/Desktop/NGS_postdoc/data/zga/degs.cor/homer.tf",recursive = T,pattern = "Results.txt",full.names = T)
 basename(dirname(files))
 foo<-lapply(files, function(f)fread(f,select = c(1,2,3)) %>% .[,anno:=basename(dirname(f)) %>% 
@@ -63,11 +70,11 @@ deg<-fread("~/Desktop/NGS_postdoc/data/DEGs/20190610.degs/20190610.degs.2cell.vs
 foo[!tf %in% deg[,symbol],unique(tf)] #
 foo<-merge(foo,deg[,.(expr=log2FoldChange,tf=symbol,DEG.pvalue=pvalue)],by=c("tf"))
 foo$type.ndr<-factor(foo$type.ndr,levels=c("promoter","distal"))
-foo$type.cor<-factor(foo$type.cor,levels=c("pos.sig","neg.sig"))#"zygote" ,"2cell", "4cell", "L4cell", "8cell","16cell","ICM" ,"TE"))
+foo$type.cor<-factor(foo$type.cor,levels=c("pos.sig","neg.sig"))
+fwrite(foo[,.(TF= str_to_title(tf),Type=type.ndr, CREs=type.cor, `Motif Enrichment -log10(P value)`=log10pval,`Differential Expression log2(fold change)`=expr, `DEG P value`=DEG.pvalue)],
+       "~/Desktop/Figure4e.tsv",sep="\t")
 
-########
-
-############################
+####################################
 foo[,max(log10pval)]
 foo[,max(expr)]
 
@@ -79,7 +86,7 @@ to.plot[,length(unique(tf))]
 to.plot$type.cor<-factor(to.plot$type.cor,levels = c("neg.sig","pos.sig"))
 
 test<-dcast(to.plot,tf~type.ndr+type.cor,value.var = "log10pval") %>% as.data.frame()%>% tibble::column_to_rownames("tf")
-ord.tf<-pheatmap::pheatmap(test,cluster_cols = F)#,clustering_distance_rows="correlation")#,clustering_method = "ward.D2")
+ord.tf<-pheatmap::pheatmap(test,cluster_cols = F)
 
 dev.off()
 to.plot$tf<-factor(to.plot$tf,levels = rev(ord.tf$tree_row$labels[ord.tf$tree_row$order] ))
@@ -107,6 +114,4 @@ ggplot(data = to.plot, mapping = aes(x=tf,y=type.cor))+
   )+ coord_fixed(ratio = 1)## coord_flip()
 dev.off()
 
-fwrite(foo[,.(TF= str_to_title(tf),Type=type.ndr, CREs=type.cor, `Motif Enrichment -log10(P value)`=log10pval,`Differential Expression log2(fold change)`=expr, `DEG P value`=DEG.pvalue)],
-       "~/Desktop/Figure4e.tsv",sep="\t")
 
