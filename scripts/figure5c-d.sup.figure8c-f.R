@@ -1,3 +1,9 @@
+library(data.table)
+library(purrr)
+library(furrr)
+library(dplyr)
+library(plyr)
+
 ############################################################## 
 ##############################################################
 ## plot single genes
@@ -119,7 +125,7 @@ pheatmap::pheatmap(to.plot.sg.matrix.expr[rownames(row.anno),],scale="column", c
 dev.off()
 
 
-## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## 
+########################################################
 ## plot single NDR_gene cor   x=expr y=acc r p, chr:start-end
 to.plot<-accrna.cor[symbol%in% c("Nanog","Pou5f1","Cdx2") &sig.type=="pos.sig"]
 to.plot[,labels:=paste0(symbol,"_",chr,":",start,"-",end,"_",round(r*100)/100)]
