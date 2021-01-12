@@ -5,6 +5,7 @@ library(furrr)
 library(dplyr)
 library(plyr)
 
+sample.anno<-fread("~/Desktop/NGS_postdoc/data/DNA.data/20190524.updated.cell.metadata.tsv")
 ##### add lineage tracing information
 sample.anno$id<-do.call(rbind,strsplit(sample.anno$cellid,"[_]"))[,2]
 
