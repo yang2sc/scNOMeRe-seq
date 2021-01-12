@@ -1,5 +1,11 @@
-##### figure 5f
-##### compare met and expr in ACC/RNA inferred CREs 
+# figure 5f
+library(data.table)
+library(purrr)
+library(furrr)
+library(dplyr)
+library(plyr)
+
+## compare met and expr in ACC/RNA inferred CREs 
 acc.met.rna.cor.d<-fread("~/Desktop/NGS_postdoc/data/te.icm/icm.te.degs.cor/20190810.distal.NDR_accmetrnaTPM.wtd.cor.final.tsv")
 acc.met.rna.cor.p<-fread("~/Desktop/NGS_postdoc/data/te.icm/icm.te.degs.cor/20190810.proximal.NDR_accmetrnaTPM.wtd.cor.final.tsv")
 
