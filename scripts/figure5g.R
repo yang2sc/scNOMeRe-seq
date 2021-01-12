@@ -1,6 +1,11 @@
-# tf enrichment
+# figure 5g 
+library(data.table)
+library(purrr)
+library(furrr)
+library(dplyr)
+library(plyr)
 
-#homer size given
+#tf enrichment homer size given
 files<-list.files("~/Desktop/NGS_postdoc/data/te.icm/icm.te.degs.cor/beforediff/homer.TF",recursive = T,pattern = "Results.txt",full.names = T)
 basename(dirname(files))
 foo<-lapply(files, function(f)fread(f,select = c(1,2,3)) %>% .[,anno:=basename(dirname(f)) %>% 
@@ -60,15 +65,12 @@ deg<-fread("~/Desktop/NGS_postdoc/data/DEGs/20190610.degs/20190610.degs.TE.vs.IC
   .[,gene:=substring(V1,1,18)] %>% .[gene%in% gene.anno$gene] %>% 
   .[,.(symbol=toupper(substring(V1,20,100)),log2FoldChange,pvalue)]
 
-foo[!tf %in% deg[,symbol],unique(tf)] #"NKX3-2" "SP5"    "THRB"  
-#foo<-merge(foo,rna.tpm.stage[stage%in% "2cell",.(expr=log2(V1+1),tf=symbol)],by=c("tf"))
+foo[!tf %in% deg[,symbol],unique(tf)]  
 foo<-merge(foo,deg[,.(expr=log2FoldChange,tf=symbol,DEG.pvalue=pvalue)],by=c("tf"))
-foo$type.ndr<-factor(foo$type.ndr,levels=c("promoter","distal"))#"zygote" ,"2cell", "4cell", "L4cell", "8cell","16cell","ICM" ,"TE"))
+foo$type.ndr<-factor(foo$type.ndr,levels=c("promoter","distal"))
 foo$stage<-factor(foo$stage,levels =rev( c("ICM","TE")))
-foo$type.cor<-factor(foo$type.cor,levels=c("pos","neg"))#"zygote" ,"2cell", "4cell", "L4cell", "8cell","16cell","ICM" ,"TE"))
-#foo$type.cor<-factor(foo$type.cor,levels=c("pos","neg","not"))#"zygote" ,"2cell", "4cell", "L4cell", "8cell","16cell","ICM" ,"TE"))
-
-########
+foo$type.cor<-factor(foo$type.cor,levels=c("pos","neg"))
+            
 
 ############################
 foo[,max(log10pval)]
