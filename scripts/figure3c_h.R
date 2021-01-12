@@ -1,11 +1,14 @@
 # figure 3c-h
+library(data.table)
+library(purrr)
+library(furrr)
+library(dplyr)
+library(plyr)
 
+sample.anno<-fread("~/Desktop/NGS_postdoc/data/DNA.data/20190524.updated.cell.metadata.tsv")
 ##### plot allelic epigenomes vs total RNA
-# 20190715
-
-# run in server 
+# run raw data in server 
 # /home/wangyang/project/duozuxue/DNA.part/local_correlation/allelic.cor
-
 
 # plot in local
 
@@ -67,7 +70,6 @@ cor[anno=="tss2500"]
 
 cor<-merge(cor,new.order,by=c("window_center","anno"))
 
-sample.anno<-fread("~/Desktop/NGS_postdoc/data/DNA.data/20190524.updated.cell.metadata.tsv")
 
 # select cells to plot
 if (epi.type=="met"){
@@ -476,7 +478,7 @@ for (epi.type in c("acc", "met")){
 }
 
 
-#################################################20200519
+#################################################
 
 # statistical analysis maternal and nonmaternal gene genebody correlations
 epi.type="met"
