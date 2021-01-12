@@ -1,4 +1,9 @@
 # figure 2 a-g
+library(data.table)
+library(purrr)
+library(furrr)
+library(dplyr)
+library(plyr)
 
 ##### add lineage tracing information
 sample.anno$id<-do.call(rbind,strsplit(sample.anno$cellid,"[_]"))[,2]
