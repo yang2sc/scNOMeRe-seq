@@ -1,5 +1,11 @@
-#extended data 9a-d
+#sup figure 10a-b
 library(ggpubr)
+library(data.table)
+library(purrr)
+library(furrr)
+library(dplyr)
+library(ggplot2)
+library(plyr)
 #### plot acc met
 #### met
 
@@ -24,10 +30,6 @@ tmp$sig.type<-factor(tmp$sig.type,levels = c('pos.sig',"neg.sig"))
 tmp$anno<-factor(tmp$anno,levels=c("CRE","random"))
 tmp$gene.type<-factor(tmp$gene.type,levels = c("ICM.high","TE.high"))
 tmp$ndr.types<-factor(tmp$ndr.types,levels=c("promoter","distal"))
-
-#tmp$sig.type<-factor(tmp$sig.type,levels = c( "ICM.high_CRE","TE.high_CRE","ICM.high_random","TE.high_random"))
-#tmp$ndr.type<-factor(tmp$ndr.type,levels = c("promoter","distal"))
-#tmp$gene.type<-factor(tmp$gene.type,levels = c( "ICM.high_CRE","TE.high_CRE","ICM.high_random","TE.high_random"))
 
 
 # met
@@ -69,13 +71,6 @@ p1<-ggplot(tmp,aes(x=window_center, y=epi.level*100, fill=stage, color=stage ,gr
   )
 print(p1)
 dev.off()
-#  }  
-#}
-
-
-library(data.table)
-library(ggplot2)
-library(dplyr)
 
 
 acc<-fread("~/Desktop/NGS_postdoc/data/DNA.data/201903.parsed.epi/20190529.sc.acc.NDRs.hiAccRNA.w.N.Nacc.tsv.gz")
@@ -84,10 +79,6 @@ met<-fread("~/Desktop/NGS_postdoc/data/DNA.data/201903.parsed.epi/20190529.sc.me
 accrna.cor<-rbind(fread("~/Desktop/NGS_postdoc/data/te.icm/icm.te.degs.cor/20190810.distal.NDR_accrnaTPM.wtd.cor.final.tsv") %>% .[,anno:="Distal"] %>% .[!sig.type=="not.sig",.(id,anno,symbol,gene.type,sig.type)]#sig.type=="pos.sig"
                   ,fread("~/Desktop/NGS_postdoc/data/te.icm/icm.te.degs.cor/20190810.proximal.NDR_accrnaTPM.wtd.cor.final.tsv") %>% .[,anno:="Promoter"] %>% .[!sig.type=="not.sig",.(id,anno,symbol,gene.type,sig.type)] #sig.type=="pos.sig"
 )
-
-#accrna.cor<-rbind(fread("~/Desktop/NGS_postdoc/data/te.icm/icm.te.degs.cor/20190810.distal.NDR_accrnaTPM.wtd.cor.final.tsv") %>% .[,anno:="Distal"] %>% .[sig.type=="pos.sig",.(id,anno,symbol,gene.type,sig.type)]
-#                  ,fread("~/Desktop/NGS_postdoc/data/te.icm/icm.te.degs.cor/20190810.proximal.NDR_accrnaTPM.wtd.cor.final.tsv") %>% .[,anno:="Promoter"] %>% .[sig.type=="pos.sig",.(id,anno,symbol,gene.type,sig.type)]
-#)
 
 sample.anno<-fread("~/Desktop/NGS_postdoc/data/DNA.data/20190524.updated.cell.metadata.tsv")
 sample.anno[,gch_mean_rate:=gch_mean_rate %>% sub("%","",.) %>% as.numeric()]
@@ -100,7 +91,6 @@ accrna.cor.acc<-merge(accrna.cor,acc,by="id")
 accrna.cor.met<-merge(accrna.cor,met,by="id")
 tmp
 
-accrna.cor
 
 to.plot.mean<-accrna.cor.acc[weight>=3,.(mean(mean_rate)/100),.(cellid,stage,anno,gene.type,sig.type)] %>% merge(sample.anno[,.(cellid,bg=wcg_mean_rate/100)],by="cellid")
 
@@ -154,7 +144,6 @@ ggplot(tmp,aes(stage,(TE.high-ICM.high)*100,color=stage))+
   geom_hline(yintercept = 0,linetype="dashed",color="black")+
   scale_color_manual(values = c(  zygote="#7FC97F",`2cell`= "#BEAED4", `4cell`= "#FDC086",L4cell= "#808000",
                                   `8cell`= "#386CB0",`16cell`= "#650136", ICM= "#E64B35CC",TE= "#4DBBD5CC"))+ # F0027F
-  #geom_abline(slope = 1,linetype="dashed",color="grey")+
   theme_bw()+
   labs(x="",y="Differential Met level (%)\nTE.CREs-ICM.CREs")+
   theme(
@@ -165,8 +154,6 @@ ggplot(tmp,aes(stage,(TE.high-ICM.high)*100,color=stage))+
     legend.justification = "center",
     legend.title = element_blank(),
     legend.text = element_text(size=12),
-    # panel.border = element_blank(),
-    # panel.grid.major = element_blank(),
     panel.grid = element_blank(),
     panel.background = element_blank()
   ) 
