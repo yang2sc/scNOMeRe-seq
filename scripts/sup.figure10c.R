@@ -1,4 +1,11 @@
-# sup figure10b
+# sup figure10c
+library(ggpubr)
+library(data.table)
+library(purrr)
+library(furrr)
+library(dplyr)
+library(ggplot2)
+library(plyr)
 ## tf activity in single cells
 files<-list.files("~/Desktop/NGS_postdoc/data/te.icm/icm.te.degs.cor/beforediff/homer.TF",recursive = T,pattern = "Results.txt",full.names = T)
 basename(dirname(files))
@@ -6,9 +13,6 @@ foo<-lapply(files, function(f)fread(f,select = c(1,2,3)) %>% .[,anno:=basename(d
                                                                  sub("20190810.accrna.correlations.","",.)%>%
                                                                  sub(".high.tsv_motif_unmask_sizeGiven","",.)])%>% rbindlist()
 colnames(foo)<-c("TF","Consensus","pvalue","anno")
-
-#foo$tf<-do.call(rbind,strsplit(foo$TF,"[/]"))[,1]
-#foo$tf<-do.call(rbind,strsplit(foo$tf,"[()]"))[,1]
 str(foo)
 foo[pvalue=="1"]
 #foo[,log10pval:= -log10(pvalue)]
@@ -104,7 +108,3 @@ pheatmap::pheatmap(to.plot[p1$tree_row$labels[p1$tree_row$order] ,rownames(colan
                                                      `8cell`= "#386CB0",`16cell`= "#650136", ICM= "#E64B35CC",TE= "#4DBBD5CC"))
 )
 dev.off()
-
-
-
-
